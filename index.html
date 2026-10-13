@@ -117,6 +117,7 @@
   .bars i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .3); transition: background-color .3s; }
   .bars i.on { background: #fff; }
   .hero.multi .topline { top: calc(env(safe-area-inset-top) + 22px); }
+  .hero.multi { touch-action: pan-y; }
   .hero img.slide { position: absolute; inset: 0; opacity: 0; transition: opacity .35s var(--ease); }
   .hero img.slide.on { opacity: 1; }
 
@@ -344,6 +345,21 @@
     $('bars').classList.remove('hidden');
     let current = 0;
     hero.dataset.slides = 'on';
+    // Свайп влево — следующее фото, вправо — предыдущее (вертикальная прокрутка не мешает).
+    let startX = 0;
+    let startY = 0;
+    hero.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+    hero.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+      hero.dataset.swiped = String(performance.now());
+      hero.dispatchEvent(new CustomEvent('slide', { detail: dx < 0 ? 1 : -1 }));
+      if (navigator.vibrate) navigator.vibrate(6);
+    }, { passive: true });
     hero.addEventListener('slide', (e) => {
       current = (current + e.detail + photos.length) % photos.length;
       imgs.forEach((img, i) => img.classList.toggle('on', i === current));
@@ -548,6 +564,8 @@
     let single = null;
     $('hero').addEventListener('pointerup', (e) => {
       const t = performance.now();
+      // Только что был свайп — это не тап.
+      if (t - Number($('hero').dataset.swiped || 0) < 400) return;
       if (t - last > 320) {
         last = t;
         // Один тап листает фото (если их несколько) — ждём, не будет ли второго.
