@@ -54,7 +54,8 @@
     border-radius: 0 0 36px 36px; background: var(--surface);
     transform-origin: 50% 0; will-change: transform;
   }
-  .hero img { width: 100%; height: 100%; object-fit: cover; display: block; animation: breathe 14s ease-in-out infinite alternate; }
+  /* Кадрируем ближе к верху: лицо на портрете обычно там. */
+  .hero img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; display: block; animation: breathe 14s ease-in-out infinite alternate; }
   @keyframes breathe { from { transform: scale(1.06); } to { transform: scale(1.14) translateY(-1.5%); } }
   .hero .glare {
     position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light;
@@ -412,6 +413,10 @@
       chip.textContent = text.slice(0, 32);
       $('likes').append(chip);
     });
+
+    // Пустые блоки убираем — их отступы отнимали высоту у фото.
+    if (!prompts.length) $('prompts').remove();
+    if (!likes.length) $('likes').remove();
 
     if (phone) $('minor').append(tag('phone', 'Позвонить', `tel:${phone.replace(/[^\d+]/g, '')}`));
     if (email) $('minor').append(tag('email', 'Почта', `mailto:${email}`));
