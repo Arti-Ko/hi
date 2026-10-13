@@ -2,5 +2,9 @@ BEGIN:VCARD
 VERSION:3.0
 N:;Артём;;;
 FN:Артём
+TITLE:Дизайнер интерфейсов
 TEL;TYPE=CELL:+79991234567
+EMAIL;TYPE=INTERNET:hello@example.com
+URL:https://t.me/telegram
+URL:https://instagram.com/instagram
 END:VCARD

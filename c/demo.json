@@ -1,12 +1,14 @@
 {
-  "v": 1,
-  "title": "Познакомимся?",
-  "subtitle": "Я Артём, а ты?",
+  "v": 2,
+  "greeting": "Привет, я",
   "name": "Артём",
+  "role": "Дизайнер",
+  "age": "24",
+  "about": "Делаю приложения, которые приятно трогать: NFC-метки, анимации, всякое живое.\nЛюблю кофе, ночные прогулки и людей, которые горят своим делом.",
   "phone": "+79991234567",
+  "email": "hello@example.com",
   "telegram": "telegram",
-  "media": "m/demo/hero.gif?v=2",
-  "cutout": true,
+  "instagram": "instagram",
   "vcard": true,
-  "updated": 2
+  "updated": 4
 }
