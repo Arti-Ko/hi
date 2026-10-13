@@ -45,7 +45,8 @@
   .arc.a2 { width: 720px; height: 720px; bottom: -520px; left: -480px; animation: drift 32s ease-in-out infinite alternate-reverse; }
   @keyframes drift { to { transform: translate(-30px, 24px) rotate(8deg); } }
 
-  .card { position: relative; max-width: 480px; margin: 0 auto; padding-bottom: calc(env(safe-area-inset-bottom) + 190px); }
+  /* Низ карточки — ровно над кнопками (высоту кнопок меряет скрипт), чтобы не было лишнего скролла. */
+  .card { position: relative; max-width: 480px; margin: 0 auto; padding-bottom: calc(var(--dock-h, 150px) + 12px); }
 
   /* ── Фото на всю ширину: первым делом смотрят на него ── */
   .hero {
@@ -374,6 +375,28 @@
     setTimeout(() => requestAnimationFrame(frame), 1300);
   }
 
+  // Фото занимает всё, что осталось от экрана после текста и кнопок: влезает ровно, без микроскролла.
+  // Если текста много, фото не меньше 300 px — тогда прокрутка уже по делу.
+  function fitToScreen() {
+    const fit = () => {
+      const dock = $('dock').classList.contains('hidden') ? 0 : $('dock').getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--dock-h', `${Math.ceil(dock)}px`);
+      const content = document.querySelector('.content').getBoundingClientRect().height;
+      const screen = window.visualViewport ? visualViewport.height : innerHeight;
+      $('hero').style.height = `${Math.max(300, Math.floor(screen - content - dock - 12))}px`;
+      // Отступы, которые не попали в замер, добираем по факту: сколько вылезло — на столько ниже фото.
+      const overflow = document.documentElement.scrollHeight - screen;
+      if (overflow > 0) {
+        const height = $('hero').getBoundingClientRect().height;
+        $('hero').style.height = `${Math.max(300, Math.floor(height - overflow))}px`;
+      }
+    };
+    fit();
+    // Шрифт догружается позже и меняет высоту текста — пересчитываем.
+    if (document.fonts) document.fonts.ready.then(fit);
+    addEventListener('resize', fit);
+  }
+
   // Двойной тап по фото — сердечко, как лайк.
   function hearts() {
     let last = 0;
@@ -424,6 +447,7 @@
       caret.className = 'caret';
       type($('label'), $('label').dataset.type, 200, 22);
       type($('name'), nameLine, 700, 55, caret);
+      fitToScreen();
       tilt();
       hearts();
     })
