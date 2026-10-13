@@ -3,159 +3,256 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="dark">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#f1eeeb">
+<meta name="theme-color" content="#121212">
 <title>Визитка</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
 <style>
-  /* Визитка по NFC-метке: кремовый лист, крупная типографика и персонаж, который следит за пальцем и наклоном. */
+  /* Визитка по NFC-метке в духе портфолио разработчика: моно-заголовки, курсивные акценты, тонкие окружности. */
   :root {
-    --paper: #f1eeeb;
-    --ink: #111111;
-    --soft: #c7c1bd;
-    --muted: #8b847f;
-    --line: rgba(17, 17, 17, .12);
-    --font: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --bg: #121212;
+    --text: #ececec;
+    --dim: #8c8c8c;
+    --faint: #5c5c5c;
+    --line: #2d2d2d;
+    --arc: #222222;
+    --white: #f2f2f2;
+    --ink: #121212;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     --ease: cubic-bezier(.2, .8, .2, 1);
-    --ease-in-out: cubic-bezier(.7, 0, .2, 1);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
+  html { background: var(--bg); scroll-behavior: smooth; }
   body {
-    background: var(--paper); color: var(--ink); font-family: var(--font);
+    color: var(--text); font-family: var(--sans); font-weight: 300;
     -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
-    overflow: hidden; touch-action: manipulation;
+    overflow-x: hidden;
   }
   a, button { color: inherit; text-decoration: none; font: inherit; background: none; border: 0; cursor: pointer; }
+  em { font-style: italic; font-weight: 400; color: #fff; }
 
-  .top {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 3;
-    display: flex; justify-content: space-between; align-items: flex-start;
-    padding: calc(env(safe-area-inset-top) + 22px) 22px 0 24px;
-  }
-  h1 {
-    font-weight: 800; font-size: clamp(34px, 10.4vw, 54px); line-height: 1.06; letter-spacing: -.025em;
-    text-transform: uppercase; max-width: 82%;
-  }
-  /* Запас сверху — чтобы маска появления не срезала точки над «Ё» и «Й». */
-  .line { display: block; overflow: hidden; padding: .1em 0 .04em; margin-top: -.1em; }
-  .line > span { display: block; }
-  .soft { color: var(--soft); }
+  .page { position: relative; max-width: 460px; margin: 0 auto; padding: 0 22px calc(env(safe-area-inset-bottom) + 120px); }
 
-  .burger { position: relative; width: 44px; height: 44px; margin: -4px -8px 0 0; flex: none; }
-  .burger i {
-    position: absolute; left: 9px; right: 9px; height: 2.5px; border-radius: 2px; background: var(--ink);
-    transition: transform .5s var(--ease-in-out), opacity .3s;
-  }
-  .burger i:nth-child(1) { top: 13px; }
-  .burger i:nth-child(2) { top: 21px; }
-  .burger i:nth-child(3) { top: 29px; }
-  .open .burger i:nth-child(1) { transform: translateY(8px) rotate(45deg); }
-  .open .burger i:nth-child(2) { opacity: 0; transform: scaleX(.2); }
-  .open .burger i:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+  /* Тонкие окружности на фоне — как на макете, медленно плывут при прокрутке. */
+  .arcs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .arc { position: absolute; border: 1px solid var(--arc); border-radius: 50%; will-change: transform; }
+  .page > :not(.arcs) { position: relative; z-index: 1; }
 
-  /* Персонаж: обрезан низом экрана, как на постере. */
-  .figure {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 1;
-    height: min(72dvh, 142vw); display: flex; justify-content: center; align-items: flex-end;
-    pointer-events: none;
+  /* ── Шапка ── */
+  .bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: calc(env(safe-area-inset-top) + 18px) 0 0;
   }
-  .figure svg { height: 100%; width: auto; max-width: none; overflow: visible; }
-  .figure img {
-    height: 92%; max-width: 92vw; object-fit: contain; object-position: bottom;
-    transform-origin: 50% 80%; will-change: transform;
-  }
+  .handle { font-family: var(--mono); font-size: 13px; letter-spacing: .02em; color: var(--text); }
+  .burger { width: 40px; height: 40px; margin-right: -8px; position: relative; }
+  .burger i { position: absolute; left: 10px; right: 10px; height: 1.5px; background: var(--text); transition: transform .45s var(--ease), opacity .3s; }
+  .burger i:nth-child(1) { top: 14px; } .burger i:nth-child(2) { top: 19px; } .burger i:nth-child(3) { top: 24px; }
+  .menu-open .burger i:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+  .menu-open .burger i:nth-child(2) { opacity: 0; }
+  .menu-open .burger i:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
 
-  /* Кнопки снизу — всегда на виду. */
+  /* ── Первый экран ── */
+  .title { margin-top: 44px; font-family: var(--mono); font-weight: 500; font-size: clamp(30px, 9vw, 40px); line-height: 1.15; letter-spacing: -.02em; min-height: 2.3em; }
+  .title .l2 { display: block; text-align: right; }
+  .caret { display: inline-block; width: .55ch; height: 1em; margin-left: 2px; background: var(--text); vertical-align: -.12em; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .intro { margin-top: 22px; font-size: 17px; line-height: 1.45; color: #cfcfcf; max-width: 92%; }
+
+  .cta { display: flex; align-items: center; gap: 10px; margin-top: 26px; }
+  .pill {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 44px; padding: 0 26px; border-radius: 999px; font-size: 15px; font-style: italic; font-weight: 400;
+    transition: transform .18s var(--ease), background-color .2s;
+  }
+  .pill.solid { background: var(--white); color: var(--ink); min-width: 150px; }
+  .pill.line { border: 1px solid var(--line); color: var(--text); }
+  .circle {
+    width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none;
+    transition: transform .25s var(--ease);
+  }
+  .circle.solid { background: var(--white); color: var(--ink); }
+  .circle.line { border: 1px solid var(--line); }
+  .circle svg { width: 18px; height: 18px; transition: transform .3s var(--ease); }
+  .pill:active, .circle:active { transform: scale(.94); }
+  .circle:active svg { transform: rotate(-45deg); }
+
+  .socials { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px;
+    border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; font-style: italic; color: #d6d6d6;
+    transition: background-color .2s, transform .18s var(--ease);
+  }
+  .tag svg { width: 14px; height: 14px; flex: none; }
+  .tag:active { transform: scale(.95); background: #1d1d1d; }
+
+  /* Карточка с фото — как статья на макете: картинка сверху, текст на тёмном. */
+  .card-photo {
+    margin-top: 30px; border-radius: 28px; overflow: hidden; position: relative;
+    background: #1b1b1b; border: 1px solid var(--line);
+  }
+  .card-photo img { width: 100%; height: 230px; object-fit: cover; display: block; }
+  .card-photo .fade { position: absolute; left: 0; right: 0; top: 130px; height: 100px; background: linear-gradient(transparent, #1b1b1b); }
+  .card-photo .body { position: relative; padding: 4px 18px 18px; margin-top: -40px; }
+  .card-photo h3 { font-family: var(--mono); font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
+  .card-photo p { margin-top: 6px; font-size: 13px; color: #bdbdbd; line-height: 1.4; }
+  .card-photo .cta { margin-top: 16px; }
+  .card-photo .pill { height: 38px; min-width: 0; padding: 0 22px; font-size: 13px; }
+  .card-photo .circle { width: 38px; height: 38px; }
+
+  /* ── Подписи разделов «… /Обо мне …» ── */
+  .section { margin-top: 84px; }
+  .label { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: .01em; min-height: 1.2em; }
+  .about { margin-top: 16px; font-size: 16px; line-height: 1.5; color: #cfcfcf; white-space: pre-line; }
+
+  /* Навыки: первая карточка белая, остальные контурные; каждая вторая — уже, с элементом сбоку. */
+  .skills { display: flex; flex-direction: column; gap: 14px; margin-top: 22px; }
+  .skill-row { display: flex; align-items: center; gap: 14px; }
+  .skill { flex: 1; border-radius: 24px; padding: 18px 18px 20px; border: 1px solid var(--line); }
+  .skill.solid { background: var(--white); color: var(--ink); border-color: var(--white); }
+  .skill h4 { font-family: var(--sans); font-weight: 400; font-size: 15px; }
+  .skill p { margin-top: 10px; font-family: var(--mono); font-size: 12px; line-height: 1.75; }
+  .skill.solid p { color: #2a2a2a; }
+  .skill-row.narrow .skill { flex: 0 0 72%; }
+  .side-note { font-size: 11px; line-height: 1.35; color: var(--dim); font-style: italic; }
+
+  /* ── Контакты ── */
+  .mini-nav { display: flex; gap: 18px; margin-top: 18px; font-size: 12px; color: #cfcfcf; }
+  .site { display: inline-block; margin-top: 24px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 24px; }
+  .site h4 { font-weight: 400; font-size: 14px; }
+  .site p { margin-top: 12px; font-family: var(--mono); font-size: 11.5px; line-height: 1.8; color: #cfcfcf; }
+  .big { margin-top: 30px; font-family: var(--mono); font-weight: 500; font-size: clamp(34px, 10vw, 46px); line-height: 1.1; letter-spacing: -.02em; }
+  .big .n1 { display: block; }
+  .big .row2 { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+  .big .small { font-family: var(--sans); font-weight: 300; font-size: 11px; line-height: 1.3; color: var(--dim); letter-spacing: 0; max-width: 96px; padding-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+  .grid .tag { justify-content: center; height: 36px; }
+
+  .fine { margin-top: 40px; text-align: center; font-family: var(--mono); font-size: 11px; color: var(--faint); }
+
+  /* ── Кнопки снизу: всегда на виду ── */
   .dock {
-    position: fixed; left: 16px; right: 16px; z-index: 2;
-    bottom: calc(env(safe-area-inset-bottom) + 16px);
-    display: flex; gap: 10px; justify-content: center;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+    display: flex; justify-content: center; gap: 10px;
+    padding: 34px 18px calc(env(safe-area-inset-bottom) + 16px);
+    background: linear-gradient(to top, rgba(18, 18, 18, .96) 55%, rgba(18, 18, 18, 0));
   }
-  .btn {
-    flex: 1; max-width: 240px; height: 58px; border-radius: 999px;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    font-size: 16px; font-weight: 600; letter-spacing: -.01em;
-    transition: transform .18s var(--ease);
+  [data-os="ios"] .dock {
+    left: 10px; right: 10px; bottom: calc(env(safe-area-inset-bottom) + 10px); padding: 8px; border-radius: 30px;
+    background: rgba(40, 40, 40, .45); border: 1px solid rgba(255, 255, 255, .12);
+    -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 20px 50px -14px rgba(0, 0, 0, .7);
   }
-  .btn svg { width: 22px; height: 22px; flex: none; }
-  .btn:active { transform: scale(.96); }
-  [data-os="android"] .btn.primary { background: var(--ink); color: var(--paper); }
-  [data-os="android"] .btn.secondary { background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); }
-  /* iPhone: жидкое стекло поверх персонажа. */
-  [data-os="ios"] .btn {
-    background: rgba(255, 255, 255, .42); color: var(--ink);
-    -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 0 0 1px rgba(255, 255, 255, .6), 0 10px 30px -10px rgba(0, 0, 0, .25);
-  }
-  [data-os="ios"] .btn.primary { background: rgba(17, 17, 17, .82); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 10px 30px -10px rgba(0, 0, 0, .4); }
+  .dock .pill { flex: 1; max-width: 230px; height: 52px; font-size: 15px; }
+  .dock .pill svg { width: 18px; height: 18px; }
+  [data-os="ios"] .dock .pill.line { border-color: rgba(255, 255, 255, .22); }
 
-  /* Меню: лист сверху вниз — «кто я» и контакты. */
-  .sheet {
-    position: fixed; inset: 0; z-index: 2; background: var(--paper);
-    padding: calc(env(safe-area-inset-top) + 120px) 24px calc(env(safe-area-inset-bottom) + 120px);
-    overflow-y: auto; transform: translateY(-101%); transition: transform .7s var(--ease-in-out);
-    visibility: hidden;
+  /* ── Меню ── */
+  .menu {
+    position: fixed; inset: 0; z-index: 4; background: rgba(18, 18, 18, .98);
+    padding: calc(env(safe-area-inset-top) + 110px) 30px 0;
+    display: flex; flex-direction: column; gap: 6px;
+    opacity: 0; visibility: hidden; transition: opacity .4s, visibility .4s;
   }
-  .open .sheet { transform: none; visibility: visible; }
-  .sheet .item { opacity: 0; transform: translateY(18px); transition: opacity .5s, transform .6s var(--ease); }
-  .open .sheet .item { opacity: 1; transform: none; }
-  .label { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-  .about { font-size: 22px; line-height: 1.32; font-weight: 500; letter-spacing: -.01em; margin: 10px 0 34px; white-space: pre-line; overflow-wrap: anywhere; }
-  .contact {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    padding: 18px 0; border-top: 1px solid var(--line);
-  }
-  .contact:last-of-type { border-bottom: 1px solid var(--line); }
-  .contact .value { display: block; margin-top: 4px; font-size: 24px; font-weight: 800; letter-spacing: -.02em; overflow-wrap: anywhere; }
-  .contact svg { width: 26px; height: 26px; flex: none; transition: transform .3s var(--ease); }
-  .contact:active svg { transform: translate(3px, -3px); }
-  .save {
-    margin-top: 28px; height: 56px; border-radius: 999px; width: 100%;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    background: var(--ink); color: var(--paper); font-size: 16px; font-weight: 600;
-  }
+  .menu-open .menu { opacity: 1; visibility: visible; }
+  .menu a { font-family: var(--mono); font-size: 34px; font-weight: 500; letter-spacing: -.02em; padding: 6px 0; transform: translateY(14px); opacity: 0; transition: transform .5s var(--ease), opacity .4s; }
+  .menu a span { color: var(--faint); font-size: 14px; margin-right: 12px; vertical-align: middle; }
+  .menu-open .menu a { transform: none; opacity: 1; }
+  .menu-open .bar { position: relative; z-index: 6; }
+
+  /* Появление при прокрутке. */
+  [data-reveal] { opacity: 0; transform: translateY(26px); transition: opacity .8s var(--ease), transform .9s var(--ease); }
+  [data-reveal].in { opacity: 1; transform: none; }
 
   .hidden { display: none !important; }
-  .missing { height: 100%; display: grid; place-items: center; color: var(--muted); font-size: 17px; }
-  :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .missing { min-height: 100dvh; display: grid; place-items: center; color: var(--dim); font-family: var(--mono); font-size: 14px; }
+  :focus-visible { outline: 1px solid var(--text); outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
+    [data-reveal] { opacity: 1; transform: none; }
   }
 </style>
 </head>
 <body>
-<p class="missing hidden" id="missing">Визитка не найдена</p>
+<p class="missing hidden" id="missing">... визитка не найдена ...</p>
 
 <div id="app" class="hidden">
-  <header class="top">
-    <h1 id="headline" aria-live="polite"></h1>
-    <button class="burger" id="burger" aria-label="Кто я и контакты" aria-expanded="false" aria-controls="sheet"><i></i><i></i><i></i></button>
-  </header>
-
-  <div class="figure" id="figure" aria-hidden="true"></div>
-
-  <section class="sheet" id="sheet" aria-label="Кто я и контакты">
-    <div class="item hidden" id="aboutBlock">
-      <p class="label">Кто я</p>
-      <p class="about" id="about"></p>
+  <main class="page" id="top">
+    <div class="arcs" aria-hidden="true">
+      <i class="arc" style="width:520px;height:520px;top:-180px;right:-330px" data-speed=".06"></i>
+      <i class="arc" style="width:640px;height:640px;top:820px;left:-470px" data-speed="-.05"></i>
+      <i class="arc" style="width:560px;height:560px;top:1500px;right:-380px" data-speed=".04"></i>
+      <i class="arc" style="width:700px;height:700px;top:2300px;left:-420px" data-speed="-.03"></i>
     </div>
-    <div id="contacts"></div>
-    <a class="save item hidden" id="save">Сохранить контакт</a>
-  </section>
 
-  <nav class="dock" id="dock" aria-label="Написать">
-    <a class="btn primary hidden" id="tg" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.6 11.3 20.4 4.5c.8-.3 1.6.3 1.4 1.4l-3 14.2c-.2 1-.9 1.2-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.4-.9.4l.3-4.7 8.6-7.8c.4-.3-.1-.5-.6-.2L7 13.9l-4.6-1.4c-1-.3-1-1 .2-1.2z"/></svg>
-      Telegram
-    </a>
-    <a class="btn secondary hidden" id="ig" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
-      Instagram
-    </a>
+    <header class="bar">
+      <span class="handle" id="handle"></span>
+      <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="menu"><i></i><i></i><i></i></button>
+    </header>
+
+    <h1 class="title" id="title"></h1>
+    <p class="intro" id="intro" data-reveal></p>
+    <div class="cta" data-reveal>
+      <a class="pill solid" id="cta">Написать</a>
+      <a class="circle solid" href="#about" aria-label="Обо мне"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="socials" id="socials" data-reveal></div>
+
+    <article class="card-photo hidden" id="photoCard" data-reveal>
+      <img id="photo" alt="">
+      <span class="fade"></span>
+      <div class="body">
+        <h3 id="photoTitle"></h3>
+        <p id="photoText"></p>
+        <div class="cta">
+          <a class="pill solid hidden" id="save">Сохранить контакт</a>
+          <a class="circle solid" href="#contacts" aria-label="Контакты"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </article>
+
+    <section class="section hidden" id="about">
+      <p class="label" data-type="... /Обо мне ..."></p>
+      <p class="about" id="aboutText" data-reveal></p>
+    </section>
+
+    <section class="section hidden" id="skillsSection">
+      <p class="label" data-type="... /Навыки ..."></p>
+      <div class="skills" id="skills"></div>
+    </section>
+
+    <section class="section" id="contacts">
+      <p class="label" data-type="... /Контакты ..."></p>
+      <nav class="mini-nav" data-reveal>
+        <a href="#top">Главная</a><a href="#about">Обо мне</a><a href="#skillsSection">Навыки</a>
+      </nav>
+      <div class="site" data-reveal>
+        <h4>Визитка</h4>
+        <p>Открыта по NFC-метке /<br>Сделана в «Описи» /<br>Живёт на GitHub Pages</p>
+      </div>
+      <div class="big" data-reveal>
+        <span class="n1" id="bigName"></span>
+        <span class="row2"><span class="small" id="bigRole"></span><span id="bigAge"></span></span>
+      </div>
+      <div class="grid" id="grid" data-reveal></div>
+    </section>
+
+    <p class="fine">... handcrafted with NFC ...</p>
+  </main>
+
+  <nav class="menu" id="menu" aria-label="Разделы">
+    <a href="#top"><span>01</span>Главная</a>
+    <a href="#about"><span>02</span>Обо мне</a>
+    <a href="#skillsSection"><span>03</span>Навыки</a>
+    <a href="#contacts"><span>04</span>Контакты</a>
+  </nav>
+
+  <nav class="dock hidden" id="dock" aria-label="Написать">
+    <a class="pill solid hidden" id="tg" target="_blank" rel="noopener"></a>
+    <a class="pill line hidden" id="ig" target="_blank" rel="noopener"></a>
   </nav>
 </div>
 
@@ -163,7 +260,6 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const SVG_NS = 'http://www.w3.org/2000/svg';
 
   const tokens = location.search.slice(1).split('&').filter(Boolean);
   const forced = tokens.find((t) => t === 'ios' || t === 'android');
@@ -179,10 +275,22 @@
     phone: /^\+?[0-9 ()-]{5,20}$/,
     email: /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,24}$/,
   };
+  const ICONS = {
+    telegram: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.6 11.3 20.4 4.5c.8-.3 1.6.3 1.4 1.4l-3 14.2c-.2 1-.9 1.2-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.4-.9.4l.3-4.7 8.6-7.8c.4-.3-.1-.5-.6-.2L7 13.9l-4.6-1.4c-1-.3-1-1 .2-1.2z"/></svg>',
+    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg>',
+    email: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg>',
+    save: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>',
+  };
+  const ARROW_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+
   const clean = (value, rule) => {
     const text = typeof value === 'string' || typeof value === 'number' ? String(value).trim().replace(/^@/, '') : '';
     return rule ? (rule.test(text) ? text : '') : text;
   };
+  const escape = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // *слово* в тексте визитки — курсивный акцент, как на макете.
+  const rich = (s) => escape(s).replace(/\*([^*\n]{1,80})\*/g, '<em>$1</em>');
   const years = (n) => {
     const tens = n % 100;
     const ones = n % 10;
@@ -195,317 +303,224 @@
     const m = /^7(\d{3})(\d{3})(\d{2})(\d{2})$/.exec(raw.replace(/\D/g, '').replace(/^8(?=\d{10}$)/, '7'));
     return m ? `+7 ${m[1]} ${m[2]}-${m[3]}-${m[4]}` : raw;
   };
-  const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+  const link = (cls, href, html, external) => {
+    const a = document.createElement('a');
+    a.className = cls;
+    a.href = href;
+    a.innerHTML = html;
+    if (external) { a.target = '_blank'; a.rel = 'noopener'; }
+    return a;
+  };
+  const tagWithText = (icon, text, href, external) => {
+    const a = link('tag', href, `${ICONS[icon]}<span></span>`, external);
+    a.querySelector('span').textContent = text;
+    return a;
+  };
 
-  /* ───────── Персонаж: голова — шар, черты лица лежат на нём и поворачиваются вместе с ним ───────── */
-  function createCharacter(host) {
-    const W = 400;
-    const H = 520;
-    const C = { x: 200, y: 222 };
-    const R = 116;
-    const STROKE = 9;
-    const svg = document.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    const el = (tag, attrs, parent = svg) => {
-      const node = document.createElementNS(SVG_NS, tag);
-      Object.entries(attrs).forEach(([k, v]) => node.setAttribute(k, v));
-      parent.append(node);
-      return node;
-    };
-    const ink = { stroke: '#111', 'stroke-width': STROKE, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
-
-    // Тело и шея не крутятся — от этого голова и кажется объёмной.
-    el('path', { d: 'M-30 540 C -10 420 90 372 200 370 C 310 372 410 420 430 540 Z', fill: '#fff', ...ink });
-    el('path', { d: 'M150 382 C 165 410 235 410 250 382', fill: 'none', ...ink });
-    el('path', { d: 'M172 330 L172 384 M228 330 L228 384', fill: 'none', ...ink });
-    const earBack = [el('ellipse', { fill: '#fff', ...ink }), el('ellipse', { fill: '#fff', ...ink })];
-    el('defs', {}).append(Object.assign(document.createElementNS(SVG_NS, 'clipPath'), { id: 'headClip' }));
-    el('circle', { cx: C.x, cy: C.y, r: R - STROKE / 2 }, svg.querySelector('#headClip'));
-    el('circle', { cx: C.x, cy: C.y, r: R, fill: '#fff', ...ink });
-    const earFront = [el('ellipse', { fill: '#fff', ...ink }), el('ellipse', { fill: '#fff', ...ink })];
-    const earCurl = [el('path', { fill: 'none', ...ink, 'stroke-width': 6 }), el('path', { fill: 'none', ...ink, 'stroke-width': 6 })];
-    const eyes = [el('ellipse', { fill: '#111' }), el('ellipse', { fill: '#111' })];
-    const mouth = el('path', { fill: 'none', ...ink });
-    const cap = el('path', { fill: '#111', 'clip-path': 'url(#headClip)' });
-    el('circle', { cx: C.x, cy: C.y, r: R, fill: 'none', ...ink });
-    const stripe = el('path', { fill: 'none', stroke: '#fff', 'stroke-width': 11, 'stroke-linecap': 'round' });
-    const visor = el('path', { fill: '#111', ...ink });
-    const visorLine = el('path', { fill: 'none', stroke: '#fff', 'stroke-width': 5, 'stroke-linecap': 'round', opacity: .9 });
-    host.append(svg);
-
-    // Точка на шаре (долгота, широта, радиус) → экран с учётом поворота головы.
-    const project = (lon, lat, yaw, pitch, radius = 1) => {
-      const x0 = Math.sin(lon) * Math.cos(lat) * radius;
-      const y0 = Math.sin(lat) * radius;
-      const z0 = Math.cos(lon) * Math.cos(lat) * radius;
-      const x1 = x0 * Math.cos(yaw) + z0 * Math.sin(yaw);
-      const z1 = -x0 * Math.sin(yaw) + z0 * Math.cos(yaw);
-      const y2 = y0 * Math.cos(pitch) + z1 * Math.sin(pitch);
-      const z2 = -y0 * Math.sin(pitch) + z1 * Math.cos(pitch);
-      return { x: C.x + R * x1, y: C.y - R * y2, z: z2, nx: x1 / radius, ny: y2 / radius };
-    };
-    const squash = (p) => ({ sx: Math.max(0, Math.sqrt(1 - p.nx * p.nx)), sy: Math.max(0, Math.sqrt(1 - p.ny * p.ny)) });
-    const pts = (list) => list.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-
-    return function draw(yaw, pitch, blink) {
-      // Уши: торчат за силуэтом, а то, что повернулось к нам, рисуем поверх головы.
-      [-1, 1].forEach((side, i) => {
-        const p = project(side * 1.5, -0.08, yaw, pitch);
-        const front = p.z > 0.12;
-        const rx = 16 + 12 * Math.abs(p.nx);
-        const shift = side * (front ? 4 : 14) * Math.abs(p.nx);
-        [earBack[i], earFront[i]].forEach((node, j) => {
-          const visible = j === 0 ? !front : front;
-          node.setAttribute('visibility', visible ? 'visible' : 'hidden');
-          node.setAttribute('cx', (p.x + shift).toFixed(1));
-          node.setAttribute('cy', p.y.toFixed(1));
-          node.setAttribute('rx', rx.toFixed(1));
-          node.setAttribute('ry', 25);
-        });
-        const cx = p.x + shift;
-        earCurl[i].setAttribute('d', front || p.z > -0.35
-          ? `M${(cx - side * rx * 0.1).toFixed(1)} ${p.y - 10} q${(side * rx * 0.55).toFixed(1)} 4 ${(side * rx * 0.2).toFixed(1)} 18`
-          : '');
-      });
-
-      // Глаза и рот лежат на шаре: при повороте съезжают и сплющиваются.
-      [-1, 1].forEach((side, i) => {
-        const p = project(side * 0.36, 0.0, yaw, pitch);
-        const s = squash(p);
-        eyes[i].setAttribute('cx', p.x.toFixed(1));
-        eyes[i].setAttribute('cy', p.y.toFixed(1));
-        eyes[i].setAttribute('rx', (9.5 * s.sx).toFixed(2));
-        eyes[i].setAttribute('ry', (13 * s.sy * blink).toFixed(2));
-        eyes[i].setAttribute('opacity', p.z > 0.05 ? 1 : 0);
-      });
-      const mouthPts = [-0.3, -0.15, 0, 0.15, 0.3].map((lon, k) => project(lon, -0.36 - (k === 0 || k === 4 ? -0.05 : k === 2 ? 0.07 : 0.03), yaw, pitch));
-      const m = mouthPts;
-      mouth.setAttribute('d', `M${m[0].x.toFixed(1)} ${m[0].y.toFixed(1)} C ${m[1].x.toFixed(1)} ${(m[1].y + 6).toFixed(1)} ${m[3].x.toFixed(1)} ${(m[3].y + 6).toFixed(1)} ${m[4].x.toFixed(1)} ${m[4].y.toFixed(1)}`);
-
-      // Кепка: всё выше линии лба закрашено, низ — видимая часть кольца на широте 0.36.
-      const edge = [];
-      for (let lon = -Math.PI; lon <= Math.PI; lon += Math.PI / 36) {
-        const p = project(lon, 0.36, yaw, pitch);
-        if (p.z > -0.02) edge.push(p);
-      }
-      edge.sort((a, b) => a.x - b.x);
-      const top = [];
-      const a1 = Math.atan2(edge[edge.length - 1].y - C.y, edge[edge.length - 1].x - C.x);
-      const a0 = Math.atan2(edge[0].y - C.y, edge[0].x - C.x);
-      const from = a1;
-      const to = a0 > a1 ? a0 - Math.PI * 2 : a0;
-      for (let k = 0; k <= 24; k++) {
-        const a = from + (to - from) * (k / 24);
-        top.push({ x: C.x + (R + 8) * Math.cos(a), y: C.y + (R + 8) * Math.sin(a) });
-      }
-      cap.setAttribute('d', `${pts(edge)} ${pts(top).replace('M', 'L')} Z`);
-
-      const stripePts = [];
-      for (let lon = -0.42; lon <= 0.42; lon += 0.06) stripePts.push(project(lon, 0.66, yaw, pitch));
-      stripe.setAttribute('d', pts(stripePts));
-      stripe.setAttribute('opacity', stripePts[Math.floor(stripePts.length / 2)].z > 0.1 ? 1 : 0);
-
-      // Козырёк: от линии лба вперёд, сильнее всего торчит по центру.
-      const base = [];
-      const tip = [];
-      // Козырёк опускается на лоб и выступает вперёд: в анфас — чёрный полумесяц над глазами, в профиль торчит вбок.
-      for (let k = 0; k <= 16; k++) {
-        const lon = -1.0 + 2.0 * (k / 16);
-        base.push(project(lon, 0.36, yaw, pitch));
-        const reach = 1 + 0.44 * Math.cos((lon / 1.0) * (Math.PI / 2));
-        tip.push(project(lon * 0.96, 0.12, yaw, pitch, reach));
-      }
-      visor.setAttribute('d', `${pts(base)} ${pts(tip.reverse()).replace('M', 'L')} Z`);
-      const lineLon = [-0.6, -0.3, 0, 0.3, 0.6].map((lon) => project(lon, 0.355, yaw, pitch, 1.01));
-      visorLine.setAttribute('d', pts(lineLon));
-    };
-  }
-
-  /* ───────── Куда смотрит: палец, наклон телефона или сам по себе ───────── */
-  function startLooking(draw, image) {
-    const MAX_YAW = 0.62;
-    const MAX_PITCH = 0.28;
-    const target = { yaw: 0, pitch: 0 };
-    const now = { yaw: 0, pitch: 0 };
-    let lastInput = -1e9;
-    let tiltBase = null;
-    let blinkUntil = 0;
-    let nextBlink = performance.now() + 2200;
-    const clamp = (v, lim) => Math.max(-lim, Math.min(lim, v));
-
-    const lookAt = (x, y) => {
-      const rect = $('figure').getBoundingClientRect();
-      const headX = rect.left + rect.width / 2;
-      const headY = rect.top + rect.height * 0.42;
-      target.yaw = clamp(((x - headX) / (innerWidth * 0.5)) * MAX_YAW, MAX_YAW);
-      target.pitch = clamp(((headY - y) / (innerHeight * 0.55)) * MAX_PITCH, MAX_PITCH);
-      lastInput = performance.now();
-    };
-    addEventListener('pointermove', (e) => lookAt(e.clientX, e.clientY), { passive: true });
-    addEventListener('pointerdown', (e) => lookAt(e.clientX, e.clientY), { passive: true });
-
-    const onTilt = (e) => {
-      if (e.gamma == null || e.beta == null) return;
-      if (!tiltBase) tiltBase = { beta: e.beta, gamma: e.gamma };
-      if (performance.now() - lastInput < 1200 && tiltBase.fromTouch) return;
-      target.yaw = clamp(((e.gamma - tiltBase.gamma) / 28) * MAX_YAW, MAX_YAW);
-      target.pitch = clamp(((tiltBase.beta - e.beta) / 28) * MAX_PITCH, MAX_PITCH);
-      lastInput = performance.now();
-    };
-    const listenTilt = () => addEventListener('deviceorientation', onTilt);
-    // iPhone спрашивает разрешение на датчики только по нажатию — просим при первом касании.
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-      addEventListener('pointerup', () => {
-        DeviceOrientationEvent.requestPermission().then((state) => { if (state === 'granted') listenTilt(); }).catch(() => {});
-      }, { once: true });
-    } else {
-      listenTilt();
-    }
-
-    const frame = (t) => {
-      // Без касаний и наклона — сам оглядывается, чтобы был живым.
-      if (t - lastInput > 2600) {
-        target.yaw = Math.sin(t / 1900) * 0.42 + Math.sin(t / 830) * 0.08;
-        target.pitch = Math.sin(t / 2600) * 0.1;
-      }
-      now.yaw += (target.yaw - now.yaw) * 0.09;
-      now.pitch += (target.pitch - now.pitch) * 0.09;
-      if (t > nextBlink) {
-        blinkUntil = t + 140;
-        nextBlink = t + 2400 + Math.random() * 3200;
-      }
-      const blink = t < blinkUntil ? 0.12 : 1;
-      if (draw) draw(now.yaw, now.pitch, blink);
-      if (image) {
-        image.style.transform = `perspective(900px) rotateY(${(now.yaw * 30).toFixed(2)}deg) rotateX(${(now.pitch * 22).toFixed(2)}deg)`;
-      }
-      if (!reduced) requestAnimationFrame(frame);
-    };
-    requestAnimationFrame(frame);
-  }
-
-  /* ───────── Данные визитки ───────── */
   function render(card) {
-    const greeting = clean(card.greeting ?? card.title) || 'Привет, я';
-    const name = clean(card.name) || 'Без имени';
+    const name = clean(card.name);
     const role = clean(card.role ?? card.subtitle);
     const age = Number.parseInt(card.age, 10);
-    const lines = [
-      { text: greeting, soft: false },
-      { text: name, soft: false },
-      role && { text: role, soft: true },
-      age > 0 && age < 130 && { text: `${age} ${years(age)}`, soft: true },
-    ].filter(Boolean);
-    lines.forEach(({ text, soft }) => {
-      const line = document.createElement('span');
-      line.className = 'line';
-      const inner = document.createElement('span');
-      inner.textContent = text;
-      if (soft) inner.className = 'soft';
-      line.append(inner);
-      $('headline').append(line);
-    });
-    document.title = name;
-
-    const about = clean(card.about);
-    if (about) {
-      $('about').textContent = about;
-      $('aboutBlock').classList.remove('hidden');
-    }
+    const hasAge = age > 0 && age < 130;
+    const ageText = hasAge ? `${age} ${years(age)}` : '';
     const phone = clean(card.phone, RULES.phone);
     const email = clean(card.email, RULES.email);
     const telegram = clean(card.telegram, RULES.telegram);
     const instagram = clean(card.instagram, RULES.instagram);
+    const media = clean(card.media, RULES.media);
+
+    document.title = [name, role].filter(Boolean).join(' — ') || 'Визитка';
+    $('handle').textContent = clean(card.handle) || telegram || (name ? name.toLowerCase() : 'hello');
+
+    // Должность — заголовком в две строки, как «Full-stack / Developer».
+    const words = (role || name || 'Привет').split(/\s+/);
+    const cut = Math.max(1, Math.ceil(words.length / 2));
+    const titleLines = [words.slice(0, cut).join(' '), words.slice(cut).join(' ')].filter(Boolean);
+
+    const intro = clean(card.intro) || [name && `Привет! Я *${name}*`, ageText, role && role.toLowerCase()].filter(Boolean).join(', ');
+    $('intro').innerHTML = rich(intro);
+
     const contacts = [
-      phone && ['Телефон', formatPhone(phone), `tel:${phone.replace(/[^\d+]/g, '')}`],
-      email && ['Почта', email, `mailto:${email}`],
-      telegram && ['Telegram', `@${telegram}`, `https://t.me/${telegram}`],
-      instagram && ['Instagram', `@${instagram}`, `https://instagram.com/${instagram}`],
+      telegram && ['telegram', 'Telegram', `https://t.me/${telegram}`, true],
+      instagram && ['instagram', 'Instagram', `https://instagram.com/${instagram}`, true],
+      phone && ['phone', formatPhone(phone), `tel:${phone.replace(/[^\d+]/g, '')}`, false],
+      email && ['email', 'E-mail', `mailto:${email}`, false],
     ].filter(Boolean);
-    contacts.forEach(([label, value, href]) => {
-      const a = document.createElement('a');
-      a.className = 'contact item';
-      a.href = href;
-      a.innerHTML = `<span><span class="label"></span><span class="value"></span></span>${ARROW}`;
-      a.querySelector('.label').textContent = label;
-      a.querySelector('.value').textContent = value;
-      $('contacts').append(a);
+    contacts.forEach(([icon, text, href, ext]) => {
+      $('socials').append(tagWithText(icon, text, href, ext));
+      $('grid').append(tagWithText(icon, text, href, ext));
     });
     if (card.vcard) {
-      $('save').href = `c/${id}.vcf?v=${Number(card.updated) || 0}`;
-      $('save').setAttribute('download', `${name.replace(/[\\/:*?"<>|]/g, '')}.vcf`);
+      const fileName = `${(name || 'contact').replace(/[\\/:*?"<>|]/g, '')}.vcf`;
+      const save = tagWithText('save', 'В контакты', `c/${id}.vcf?v=${Number(card.updated) || 0}`, false);
+      save.setAttribute('download', fileName);
+      $('grid').append(save);
+      $('save').href = save.href;
+      $('save').setAttribute('download', fileName);
       $('save').classList.remove('hidden');
     }
-    if (!about && !contacts.length && !card.vcard) $('burger').classList.add('hidden');
+    $('cta').href = telegram ? `https://t.me/${telegram}` : phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : '#contacts';
+    if (telegram) { $('cta').target = '_blank'; $('cta').rel = 'noopener'; }
+
+    if (media) {
+      $('photo').src = media;
+      $('photoTitle').textContent = [name, hasAge ? age : ''].filter(Boolean).join(', ') || role;
+      $('photoText').textContent = role;
+      $('photoCard').classList.remove('hidden');
+    }
+
+    const about = clean(card.about);
+    if (about) {
+      $('aboutText').innerHTML = rich(about);
+      $('about').classList.remove('hidden');
+    }
+
+    const skills = Array.isArray(card.skills) ? card.skills.filter((s) => s && s.title && Array.isArray(s.items)).slice(0, 8) : [];
+    skills.forEach((skill, i) => {
+      const box = document.createElement('div');
+      box.className = `skill${i === 0 ? ' solid' : ''}`;
+      box.innerHTML = '<h4></h4><p></p>';
+      box.querySelector('h4').textContent = String(skill.title).slice(0, 40);
+      box.querySelector('p').textContent = skill.items.map((x) => String(x).slice(0, 40)).slice(0, 12).join(' / ');
+      const row = document.createElement('div');
+      row.dataset.reveal = '';
+      // Каждая вторая карточка уже — рядом кружок-стрелка или короткая подпись, как на макете.
+      if (i % 2 === 1 && i < skills.length - 1) {
+        row.className = 'skill-row narrow';
+        row.append(box);
+        if (i % 4 === 1) {
+          const arrow = link('circle line', '#contacts', ARROW_UP, false);
+          arrow.setAttribute('aria-label', 'Контакты');
+          row.append(arrow);
+        } else {
+          const note = document.createElement('p');
+          note.className = 'side-note';
+          note.textContent = 'То, чем пользуюсь каждый день';
+          row.append(note);
+        }
+      } else {
+        row.className = 'skill-row';
+        row.append(box);
+      }
+      $('skills').append(row);
+    });
+    if (skills.length) $('skillsSection').classList.remove('hidden');
+
+    $('bigName').textContent = name || role;
+    $('bigRole').textContent = role;
+    $('bigAge').textContent = ageText;
 
     if (telegram) {
+      $('tg').innerHTML = `${ICONS.telegram}<span>Написать в TG</span>`;
       $('tg').href = `https://t.me/${telegram}`;
       $('tg').classList.remove('hidden');
     }
     if (instagram) {
+      $('ig').innerHTML = `${ICONS.instagram}<span>Instagram</span>`;
       $('ig').href = `https://instagram.com/${instagram}`;
       $('ig').classList.remove('hidden');
     }
+    $('dock').classList.toggle('hidden', !telegram && !instagram);
 
-    const media = clean(card.media, RULES.media);
-    let draw = null;
-    let image = null;
-    if (media) {
-      image = document.createElement('img');
-      image.src = media;
-      image.alt = '';
-      $('figure').append(image);
-    } else {
-      draw = createCharacter($('figure'));
-      draw(0, 0, 1);
-    }
     $('app').classList.remove('hidden');
-    return { draw, image };
+    return titleLines;
+  }
+
+  // Заголовок печатается, как в редакторе кода, с мигающим курсором.
+  function typeTitle(lines) {
+    const title = $('title');
+    title.setAttribute('aria-label', lines.join(' '));
+    const spans = lines.map((_, i) => {
+      const s = document.createElement('span');
+      s.className = `l${i + 1}`;
+      title.append(s);
+      return s;
+    });
+    const caret = document.createElement('span');
+    caret.className = 'caret';
+    if (reduced) {
+      lines.forEach((text, i) => { spans[i].textContent = text; });
+      spans[spans.length - 1].append(caret);
+      return;
+    }
+    let line = 0;
+    let pos = 0;
+    const step = () => {
+      if (line >= lines.length) return;
+      pos += 1;
+      spans[line].textContent = lines[line].slice(0, pos);
+      spans[line].append(caret);
+      if (pos >= lines[line].length) { line += 1; pos = 0; }
+      setTimeout(step, 45 + Math.random() * 55);
+    };
+    setTimeout(step, 250);
+  }
+
+  function typeLabel(el) {
+    const text = el.dataset.type;
+    if (reduced) { el.textContent = text; return; }
+    let pos = 0;
+    const step = () => {
+      pos += 1;
+      el.textContent = text.slice(0, pos);
+      if (pos < text.length) setTimeout(step, 28);
+    };
+    step();
+  }
+
+  function observe() {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        if (e.target.dataset.type) typeLabel(e.target); else e.target.classList.add('in');
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.12 });
+    let first = 0;
+    document.querySelectorAll('[data-reveal], [data-type]').forEach((el) => {
+      if (el.closest('.hidden')) return;
+      // То, что видно сразу, появляется по очереди после печати заголовка.
+      el.style.transitionDelay = el.getBoundingClientRect().top < innerHeight ? `${700 + first++ * 110}ms` : '0ms';
+      io.observe(el);
+    });
+
+    // Окружности плывут медленнее текста — получается глубина.
+    const arcs = [...document.querySelectorAll('.arc')];
+    let ticking = false;
+    addEventListener('scroll', () => {
+      if (ticking || reduced) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        arcs.forEach((a) => { a.style.transform = `translateY(${(scrollY * Number(a.dataset.speed)).toFixed(1)}px)`; });
+        ticking = false;
+      });
+    }, { passive: true });
   }
 
   function bindMenu() {
-    const toggle = (open) => {
-      // Лист начинается сразу под заголовком, какой бы длины ни было имя.
-      if (open) $('sheet').style.paddingTop = `${Math.ceil($('headline').getBoundingClientRect().bottom) + 30}px`;
-      $('app').classList.toggle('open', open);
+    const set = (open) => {
+      $('app').classList.toggle('menu-open', open);
       $('burger').setAttribute('aria-expanded', String(open));
-      [...$('sheet').querySelectorAll('.item:not(.hidden)')].forEach((item, i) => {
-        item.style.transitionDelay = open ? `${260 + i * 70}ms` : '0ms';
-      });
+      [...$('menu').children].forEach((a, i) => { a.style.transitionDelay = open ? `${120 + i * 70}ms` : '0ms'; });
     };
-    $('burger').addEventListener('click', () => toggle(!$('app').classList.contains('open')));
-    addEventListener('keydown', (e) => { if (e.key === 'Escape') toggle(false); });
-  }
-
-  function animateIn() {
-    if (reduced) return;
-    const ease = 'cubic-bezier(.2,.8,.2,1)';
-    [...document.querySelectorAll('.line > span')].forEach((span, i) => span.animate(
-      [{ transform: 'translateY(105%)' }, { transform: 'none' }],
-      { duration: 900, delay: 120 + i * 90, easing: ease, fill: 'backwards' },
-    ));
-    $('figure').animate(
-      [{ transform: 'translateY(45%)' }, { transform: 'translateY(-2%)', offset: .75 }, { transform: 'none' }],
-      { duration: 1300, delay: 250, easing: ease, fill: 'backwards' },
-    );
-    [...$('dock').children].forEach((btn, i) => btn.animate(
-      [{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }],
-      { duration: 700, delay: 700 + i * 90, easing: ease, fill: 'backwards' },
-    ));
-    $('burger').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 500, fill: 'backwards' });
+    $('burger').addEventListener('click', () => set(!$('app').classList.contains('menu-open')));
+    $('menu').addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
   }
 
   document.addEventListener('click', (e) => {
-    if (e.target.closest('.btn, .contact, .save') && navigator.vibrate) navigator.vibrate(10);
+    if (e.target.closest('.pill, .circle, .tag') && navigator.vibrate) navigator.vibrate(8);
   });
 
-  fetch(`c/${id}.json?t=${Date.now()}`, { cache: 'no-store' })
-    .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-    .then((card) => {
-      const { draw, image } = render(card);
+  // Основное пишет «Опись», навыки и прочее — необязательный c/<id>.extra.json.
+  const get = (path) => fetch(`${path}?t=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null));
+  Promise.all([get(`c/${id}.json`), get(`c/${id}.extra.json`).catch(() => null)])
+    .then(([card, extra]) => {
+      if (!card) throw new Error('not found');
+      const lines = render({ ...(extra || {}), ...card });
       bindMenu();
-      animateIn();
-      startLooking(draw, image);
+      typeTitle(lines);
+      observe();
     })
     .catch(() => $('missing').classList.remove('hidden'));
 })();
