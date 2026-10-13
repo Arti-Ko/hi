@@ -203,6 +203,13 @@
   .dock.in { animation: dock .9s var(--spring) .75s both; }
   @keyframes dock { from { transform: translateY(130%); } to { transform: none; } }
 
+  .toast {
+    position: fixed; left: 16px; right: 16px; bottom: calc(var(--dock-h, 150px) + 12px); z-index: 6; max-width: 448px; margin: 0 auto;
+    padding: 14px 16px; border-radius: 18px; background: rgba(40, 40, 40, .92); border: 1px solid rgba(255, 255, 255, .12);
+    -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); font-size: 14px; line-height: 1.35; color: #f0f0f0;
+    box-shadow: 0 18px 40px -12px rgba(0, 0, 0, .7); animation: toast .5s var(--spring) both;
+  }
+  @keyframes toast { from { transform: translateY(20px); opacity: 0; } }
   .hidden { display: none !important; }
   .missing { min-height: 100dvh; display: grid; place-items: center; color: var(--dim); font-family: var(--mono); font-size: 14px; }
   :focus-visible { outline: 1px solid var(--text); outline-offset: 3px; }
@@ -305,6 +312,16 @@
     a.lastChild.textContent = label;
     return a;
   };
+
+  function toast(text) {
+    document.querySelector('.toast')?.remove();
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.setAttribute('role', 'status');
+    t.textContent = text;
+    document.body.append(t);
+    setTimeout(() => t.remove(), 7000);
+  }
 
   const DEFAULT_MOVES = ['Привет! Это я — с метки 👋', 'Пойдём за кофе? ☕', 'Как работает эта метка? 🙂'];
 
@@ -422,7 +439,12 @@
     if (email) $('minor').append(tag('email', 'Почта', `mailto:${email}`));
     if (card.vcard) {
       const save = tag('save', 'В контакты', `c/${id}.vcf?v=${Number(card.updated) || 0}`);
-      save.setAttribute('download', `${name.replace(/[\\/:*?"<>|]/g, '')}.vcf`);
+      // iPhone: без download Safari сам показывает системную карточку «Создать контакт».
+      // Android: браузер умеет только скачать файл — даём понятное имя и подсказываем, что делать дальше.
+      if (document.documentElement.dataset.os === 'android') {
+        save.setAttribute('download', `${name.replace(/[\\/:*?"<>|]/g, '')}.vcf`);
+        save.addEventListener('click', () => toast('Контакт скачан — открой файл из уведомления, и он сохранится в «Контакты».'));
+      }
       $('minor').append(save);
     }
 
