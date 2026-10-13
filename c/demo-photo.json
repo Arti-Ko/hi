@@ -1,0 +1,12 @@
+{
+  "v": 1,
+  "title": "Познакомимся?",
+  "subtitle": "Я Артём, а ты?",
+  "name": "Артём",
+  "phone": "+79991234567",
+  "telegram": "telegram",
+  "media": "m/demo/hero.svg?v=1",
+  "cutout": false,
+  "vcard": true,
+  "updated": 1
+}
