@@ -5,8 +5,8 @@
   "name": "Артём",
   "phone": "+79991234567",
   "telegram": "telegram",
-  "media": "m/demo/hero.svg?v=1",
+  "media": "m/demo/hero.gif?v=2",
   "cutout": false,
   "vcard": true,
-  "updated": 1
+  "updated": 2
 }
